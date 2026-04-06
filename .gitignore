@@ -5,10 +5,9 @@ venv
 # Ignore other scripts
 noun_chunks.py
 nountotoken.py
-paper.py
 text_cleaning_trial.py
+papercount.py
 
 # Ignore other data files
-arxiv_data.json
 cleaned_arxiv_data.json
 final_research_data.json
