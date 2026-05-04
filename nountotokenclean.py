@@ -1,109 +1,152 @@
-# ***********************************************************Final code *****************************************************
-
 import json
 import re
 import spacy
 from collections import Counter
 
 try:
-    nlp = spacy.load("en_core_web_sm")
+    nlp = spacy.load("en_core_web_lg")
 except OSError:
-    print("SpaCy model not found. Run: python -m spacy download en_core_web_sm")
+    print("Run:")
+    print("python -m spacy download en_core_web_lg")
     exit()
 
-def process_scientific_text(text):    
-    text = re.sub(r'\$.*?\$', '', text)  # LaTeX     
-    doc = nlp(text)
-    #  FILTERS
-    academic_noise = {
-        "revisit", "result", "find", "give", "determine", "completely", "choice", 
-        "live", "example", "assign", "case", "hand", "number", "various", 
-        "study", "paper", "approach", "provide", "show", "discuss", "conclusion", 
-        "author", "present", "propose", "work", "base", "new", "describe", 
-        "different", "furthermore", "step-wise", "identify"
-    }
-    
-    weak_words = {
-        "high", "low", "strong", "weak", "general", "current", "simple", "likely", "main", "major", "specific",  "original", "new", "different","consistent", "possible", "various", "particular", "nearby", "unique", "previous"
-    }
-    #  Negative Acronym Filter
-    common_caps_noise = {
-        "USA", "ALL", "SOME", "THE", "AND", "FOR", "ITS", "NEW", "ONE", "TWO"
-    }
-    corrections = {"datum": "data", "physic": "physics", "ai": "AI"}
-    # CLEANED KEYWORDS (Unigrams) 
-    cleaned_keywords = []
-    for token in doc:
-        if token.pos_ in ["NOUN", "PROPN", "ADJ"]:
-            if not token.is_stop and not token.is_punct and not token.is_space:
-                word = re.sub(r'[^a-zA-Z]', '', token.lemma_.lower())
-                word = corrections.get(word, word)
-                
-                if len(word) > 2 and word not in academic_noise and word not in weak_words:
-                    cleaned_keywords.append(word)
-    # IMPORTANT PHRASES
-    important_phrases = []
-    for chunk in doc.noun_chunks:
-        phrase_raw = chunk.text.lower().strip().replace('\n', ' ')
-        phrase_clean = re.sub(r'[^a-z\s\-]', '', phrase_raw).strip()
-        
-        # Removal of leading single-letter prefixes (k , d , x )
-        phrase_clean = re.sub(r'^[a-z]\s+', '', phrase_clean)
-        phrase_clean = phrase_clean.strip('-').strip()
-        words = phrase_clean.split()
-        if len(phrase_clean) > 5:
-            filtered_words = [
-                w for w in words 
-                if w not in nlp.Defaults.stop_words 
-                and w not in academic_noise 
-                and w not in weak_words
-            ]
 
-            if len(filtered_words) >= 2:
-                final_phrase = " ".join(filtered_words)
-                bad_prefixes = ("k-", "d-", "x-", "low-", "multi-")
-                if not final_phrase.startswith(bad_prefixes):
-                    final_phrase = final_phrase.replace("datum", "data")
-                    important_phrases.append(final_phrase)
+ACADEMIC_NOISE = {
+    "study", "paper", "approach", "result",
+    "author", "provide", "show", "discuss",
+    "propose", "work", "method"
+}
+
+WEAK_WORDS = {
+    "high", "low", "strong", "weak",
+    "general", "main", "major", "specific",
+    "possible", "different"
+}
+
+COMMON_CAPS_NOISE = {
+    "USA", "ALL", "THE", "AND", "FOR"
+}
+
+
+def clean_text(text):
+    text = re.sub(r"\$.*?\$", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def process_doc(doc):
+    cleaned_keywords = []
+    important_phrases = []
+
+    for token in doc:
+        if token.pos_ in ("NOUN", "PROPN", "ADJ"):
+            if token.is_stop or token.is_punct or token.is_space:
+                continue
+
+            word = re.sub(r"[^a-zA-Z]", "", token.lemma_.lower())
+
+            if len(word) <= 2:
+                continue
+
+            if word in ACADEMIC_NOISE:
+                continue
+
+            if word in WEAK_WORDS:
+                continue
+
+            cleaned_keywords.append(word)
+
+    for chunk in doc.noun_chunks:
+        phrase = chunk.text.lower().strip()
+        phrase = re.sub(r"[^a-z\s\-]", "", phrase)
+
+        words = phrase.split()
+
+        filtered = [
+            w for w in words
+            if w not in nlp.Defaults.stop_words
+            and w not in ACADEMIC_NOISE
+            and w not in WEAK_WORDS
+        ]
+
+        if len(filtered) >= 2:
+            important_phrases.append(" ".join(filtered))
 
     acronyms = [
-        token.text for token in doc
-        if token.text.isupper() 
-        and 1 < len(token.text) < 6 
-        and token.is_alpha
-        and token.text not in common_caps_noise
+        token.text
+        for token in doc
+        if token.text.isupper()
+        and token.text.isalpha()
+        and 1 < len(token.text) < 8
+        and token.text not in COMMON_CAPS_NOISE
     ]
-    important_phrases.extend(acronyms)
-    unique_keywords = list(dict.fromkeys(cleaned_keywords))
-    unique_phrases = list(dict.fromkeys(important_phrases))
-    return unique_keywords, unique_phrases
 
-def run_pipeline(input_file, output_file):
+    important_phrases.extend(acronyms)
+
+    cleaned_keywords = list(dict.fromkeys(cleaned_keywords))
+    important_phrases = list(dict.fromkeys(important_phrases))
+
+    return cleaned_keywords, important_phrases
+
+
+def run_pipeline(
+    input_file="arxiv_data.json",
+    output_file="after_cleaning_final_research_data.json"
+):
     print(f"Reading {input_file}...")
-    try:
-        with open(input_file, "r", encoding="utf-8") as f:
-            papers = json.load(f)
-    except FileNotFoundError:
-        print("Error: Input file not found.")
-        return
-    print(f"Processing {len(papers)} papers with order-preservation and noise-reduction...")
-    
-    all_summary = []
-    for paper in papers:
-        abstract = paper.get("abstract", "")
-        keywords, phrases = process_scientific_text(abstract)
+
+    with open(input_file, "r", encoding="utf-8") as f:
+        papers = json.load(f)
+
+    texts = []
+
+    for p in papers:
+        txt = " ".join([
+            p.get("title", ""),
+            p.get("abstract", ""),
+            " ".join(p.get("categories", [])),
+            p.get("comment", "")
+        ])
+
+        texts.append(clean_text(txt))
+
+    print(f"Processing {len(texts)} papers...")
+
+    docs = list(nlp.pipe(texts, batch_size=32))
+
+    all_concepts = []
+
+    for paper, doc in zip(papers, docs):
+        keywords, phrases = process_doc(doc)
+
         paper["cleaned_keywords"] = keywords
         paper["important_phrases"] = phrases
-        all_summary.extend(phrases)
+
+        paper["search_text"] = " ".join([
+            paper.get("title", ""),
+            paper.get("abstract", ""),
+            " ".join(keywords),
+            " ".join(phrases),
+            " ".join(paper.get("authors", [])),
+            " ".join(paper.get("categories", []))
+        ])
+
+        all_concepts.extend(phrases)
 
     with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(papers, f, indent=4)
-    
-    print(f"\nSUCCESS! High-fidelity data saved to {output_file}")
-    
-    print("\n--- TOP DISCOVERED CONCEPTS (Cleaned) ---")
-    for concept, count in Counter(all_summary).most_common(10):
-        print(f"{concept.upper()}: {count}")
+        json.dump(
+            papers,
+            f,
+            indent=4,
+            ensure_ascii=False
+        )
+
+    print(f"\nSaved → {output_file}")
+
+    print("\nTop concepts:")
+    for concept, count in Counter(all_concepts).most_common(20):
+        print(f"{concept} : {count}")
+
 
 if __name__ == "__main__":
-    run_pipeline("arxiv_data.json", "after_cleaning_final_research_data.json")
+    run_pipeline()
