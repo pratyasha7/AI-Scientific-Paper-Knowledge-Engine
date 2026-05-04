@@ -229,13 +229,3 @@ Cleaned collection document shape:
 
 MongoDB automatically adds `_id` to stored documents. The search and cleaning scripts exclude `_id` while reading so the application data shape remains the same as the original JSON records.
 
-## Notes
-
-- No Redis is used.
-- No Celery is used.
-- No Docker is used.
-- No FastAPI is used.
-- No frontend code is added.
-- No original JSON files are deleted.
-- No original project files are changed.
-- The pipeline behavior is intentionally kept the same except for the storage backend.
