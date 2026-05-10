@@ -1,0 +1,45 @@
+:root {
+    --bg-base: #050816;
+    --bg-secondary: #0B1020;
+    --bg-surface: #111827;
+    --card-bg: rgba(17, 24, 39, 0.72);
+    --glass-bg: rgba(15, 23, 42, 0.58);
+    --border-dim: rgba(255, 255, 255, 0.08);
+    --primary-accent: #7C3AED;
+    --secondary-accent: #2563EB;
+    --highlight: #06B6D4;
+    --text-main: #F8FAFC;
+    --text-muted: #94A3B8;
+    
+    --blur-md: 12px;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    
+    --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --glow-primary: 0 0 20px rgba(124, 58, 237, 0.2);
+}
+
+/* Base resets for dark theme */
+.stApp {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+}
+
+[data-testid="stSidebar"] {
+    background-color: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border-dim);
+}
+
+/* Fix for glass cards being too dark */
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(var(--blur-md));
+    border: 1px solid var(--border-dim);
+    color: var(--text-main) !important;
+}
+
+[data-testid="stHeader"] {
+    background-color: rgba(5, 8, 22, 0.8) !important;
+    backdrop-filter: blur(var(--blur-md));
+    border-bottom: 1px solid var(--border-dim);
+}

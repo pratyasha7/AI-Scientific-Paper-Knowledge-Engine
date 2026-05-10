@@ -1,0 +1,9 @@
+streamlit>=1.30.0
+pymongo
+python-dotenv
+pandas
+plotly
+spacy
+requests
+pillow
+streamlit-extras

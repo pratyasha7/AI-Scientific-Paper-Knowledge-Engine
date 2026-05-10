@@ -1,0 +1,62 @@
+.global-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: transparent !important; /* Fully transparent */
+    backdrop-filter: none !important;
+    border-bottom: none !important;
+    display: flex;
+    align-items: center;
+    padding: 0 60px; /* Shifted right to make room for Streamlit's arrow */
+    z-index: 99; /* Lower z-index so Streamlit header (z=999,999) is on top */
+    pointer-events: none; /* Let clicks pass through to Streamlit controls */
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    pointer-events: auto; /* Allow clicks on the logo itself */
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    background: rgba(0, 210, 255, 0.1);
+    border-color: rgba(0, 210, 255, 0.4);
+}
+
+.logo-img {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #7C3AED, #00d2ff);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+.brand-name {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #FFFFFF;
+}
+
+.nav-hint {
+    pointer-events: auto;
+    font-size: 0.7rem;
+    color: #00d2ff;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    padding: 4px 10px;
+    border-radius: 20px;
+}

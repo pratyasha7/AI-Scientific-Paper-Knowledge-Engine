@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=Sora:wght@400;600&display=swap');
+
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: var(--bg-base) !important;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main) !important;
+}
+
+/* Fix visibility for sidebar links and text */
+[data-testid="stSidebarNav"] ul li div a span {
+    color: var(--text-main) !important;
+    font-weight: 500 !important;
+}
+
+[data-testid="stSidebarNav"] ul li div a:hover {
+    background-color: rgba(124, 58, 237, 0.1) !important;
+}
+
+/* Ensure all markdown and headers are visible */
+.stMarkdown p, .stMarkdown li, .stMarkdown span {
+    color: var(--text-main) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #FFFFFF !important;
+    font-family: 'Manrope', sans-serif !important;
+    font-weight: 800 !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Fix for background overlapping content */
+.stMainBlockContainer {
+    padding-top: 3rem !important;
+    padding-bottom: 6rem !important;
+    max-width: 1200px !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+    background: #334155 !important;
+    border-radius: 10px;
+    border: 2px solid var(--bg-base);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-accent) !important;
+}
+
+/* Streamlit Widget Overrides */
+.stButton>button {
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.stTextInput>div>div>input {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-dim) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-main) !important;
+}
+
+/* Hide Default Streamlit Menu but keep header for arrow */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: visible !important;}
