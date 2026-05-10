@@ -31,6 +31,7 @@ def process_scientific_text(text):
         "USA", "ALL", "SOME", "THE", "AND", "FOR", "ITS", "NEW", "ONE", "TWO"
     }
     corrections = {"datum": "data", "physic": "physics", "ai": "AI"}
+
     # CLEANED KEYWORDS (Unigrams) 
     cleaned_keywords = []
     for token in doc:
@@ -41,6 +42,7 @@ def process_scientific_text(text):
                 
                 if len(word) > 2 and word not in academic_noise and word not in weak_words:
                     cleaned_keywords.append(word)
+                    
     # IMPORTANT PHRASES
     important_phrases = []
     for chunk in doc.noun_chunks:

@@ -24,6 +24,12 @@ def fetch_arxiv_abstracts(total_records=5000):
         try:
             response = requests.get(base_url, params=params, headers=headers)
             
+            if response.status_code == 429:
+                print("(!) Rate limit hit (429). ArXiv is asking us to wait.")
+                print("Waiting 60 seconds before retrying...")
+                time.sleep(60)  
+                continue   
+            
             if response.status_code != 200:
                 print(f"Error fetching data. Status Code: {response.status_code}")
                 break
